@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder Upload Dialog Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        button:hover {
+            background-color: #106ebe;
+        }
+        
+        #output {
+            margin-top: 20px;
+        }
+        
+        .info-section {
+            background-color: #f9f9f9;
+            border-left: 4px solid #0078d4;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .file-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        
+        .file-property {
+            margin: 5px 0;
+        }
+        
+        .property-label {
+            font-weight: bold;
+            color: #0078d4;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            table-layout: fixed;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        th {
+            background-color: #0078d4;
+            color: white;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Folder Upload Dialog Test</h1>
+        <p>Click the button below to open the native folder selection dialog. After selecting a folder, you'll see all the information that the browser returns about the selected files.</p>
+        
+        <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;">
+        <button onclick="document.getElementById('folderInput').click()">Select Folder</button>
+        
+        <div id="output"></div>
+    </div>
+
+    <script>
+        document.getElementById('folderInput').addEventListener('change', function(event) {
+            const files = event.target.files;
+            const output = document.getElementById('output');
+            
+            // Clear previous output
+            output.innerHTML = '';
+            
+            // Display summary information
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'info-section';
+            summaryDiv.innerHTML = `
+                <h2>Summary</h2>
+                <div class="file-property"><span class="property-label">Total files selected:</span> ${files.length}</div>
+                <div class="file-property"><span class="property-label">Total size:</span> ${formatBytes(getTotalSize(files))}</div>
+            `;
+            output.appendChild(summaryDiv);
+            
+            // Display FileList object information
+            const fileListDiv = document.createElement('div');
+            fileListDiv.className = 'info-section';
+            fileListDiv.innerHTML = `
+                <h2>FileList Object Information</h2>
+                <div class="file-property"><span class="property-label">Object type:</span> ${files.constructor.name}</div>
+                <div class="file-property"><span class="property-label">Length:</span> ${files.length}</div>
+            `;
+            output.appendChild(fileListDiv);
+            
+            // Create detailed file table
+            if (files.length > 0) {
+                const tableDiv = document.createElement('div');
+                tableDiv.className = 'info-section';
+                tableDiv.innerHTML = '<h2>Detailed File Information</h2>';
+                
+                const table = document.createElement('table');
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Relative Path</th>
+                            <th>Size</th>
+                            <th>Type</th>
+                            <th>Last Modified</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileTableBody"></tbody>
+                `;
+                
+                tableDiv.appendChild(table);
+                output.appendChild(tableDiv);
+                
+                const tbody = document.getElementById('fileTableBody');
+                
+                // Iterate through all files
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const row = tbody.insertRow();
+                    
+                    row.innerHTML = `
+                        <td>${i + 1}</td>
+                        <td>${file.name}</td>
+                        <td>${file.webkitRelativePath || 'N/A'}</td>
+                        <td>${formatBytes(file.size)}</td>
+                        <td>${file.type || 'N/A'}</td>
+                        <td>${new Date(file.lastModified).toLocaleString()}</td>
+                    `;
+                }
+                
+                // Display File object properties for the first file as example
+                if (files.length > 0) {
+                    const exampleDiv = document.createElement('div');
+                    exampleDiv.className = 'info-section';
+                    exampleDiv.innerHTML = `
+                        <h2>Example File Object Properties (First File)</h2>
+                        <div class="file-property"><span class="property-label">name:</span> ${files[0].name}</div>
+                        <div class="file-property"><span class="property-label">size:</span> ${files[0].size} bytes</div>
+                        <div class="file-property"><span class="property-label">type:</span> ${files[0].type || '(empty string)'}</div>
+                        <div class="file-property"><span class="property-label">lastModified:</span> ${files[0].lastModified}</div>
+                        <div class="file-property"><span class="property-label">lastModifiedDate:</span> ${files[0].lastModifiedDate || 'undefined'}</div>
+                        <div class="file-property"><span class="property-label">webkitRelativePath:</span> ${files[0].webkitRelativePath}</div>
+                    `;
+                    output.appendChild(exampleDiv);
+                }
+                
+                // Display folder structure
+                displayFolderStructure(files, output);
+            }
+        });
+        
+        function getTotalSize(files) {
+            let total = 0;
+            for (let i = 0; i < files.length; i++) {
+                total += files[i].size;
+            }
+            return total;
+        }
+        
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        function displayFolderStructure(files, output) {
+            const structureDiv = document.createElement('div');
+            structureDiv.className = 'info-section';
+            structureDiv.innerHTML = '<h2>Folder Structure</h2>';
+            
+            // Build folder tree
+            const folders = new Set();
+            for (let i = 0; i < files.length; i++) {
+                const path = files[i].webkitRelativePath;
+                if (path) {
+                    const pathParts = path.split('/');
+                    let currentPath = '';
+                    for (let j = 0; j < pathParts.length - 1; j++) {
+                        currentPath += (currentPath ? '/' : '') + pathParts[j];
+                        folders.add(currentPath);
+                    }
+                }
+            }
+            
+            const folderList = Array.from(folders).sort();
+            const pre = document.createElement('pre');
+            pre.style.backgroundColor = '#f5f5f5';
+            pre.style.padding = '10px';
+            pre.style.borderRadius = '4px';
+            pre.style.overflow = 'auto';
+            
+            let treeText = '';
+            folderList.forEach(folder => {
+                const depth = folder.split('/').length - 1;
+                const indent = '  '.repeat(depth);
+                const folderName = folder.split('/').pop();
+                treeText += indent + '📁 ' + folderName + '\n';
+            });
+            
+            pre.textContent = treeText || 'No folder structure detected';
+            structureDiv.appendChild(pre);
+            output.appendChild(structureDiv);
+        }
+    </script>
+</body>
+</html>
