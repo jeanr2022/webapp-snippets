@@ -18,6 +18,6 @@ Tests the native folder upload dialog to inspect what information the browser re
    Then open: http://localhost:8000/folder-upload-test.html
 
 3. **VS Code Extensions:**
-   - **Live Server** (ritwickdey.liveserver): Most popular, right-click file → "Open with Live Server". Simple and reliable.
-   - **Live Preview** (ms-vscode.live-server): Microsoft's official extension, embedded browser in VS Code. Better for debugging with DevTools integration.
+   - **[Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)** (ritwickdey.liveserver): Most popular, right-click file → "Open with Live Server". Simple and reliable.
+   - **[Live Preview](https://marketplace.visualstudio.com/items?itemName=ms-vscode.live-server)** (ms-vscode.live-server): Microsoft's official extension, embedded browser in VS Code. Better for debugging with DevTools integration.
 
